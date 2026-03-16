@@ -3,8 +3,17 @@ Team : InovateX 💢
 '''
 
 import pickle
+import os
+import gdown
 import streamlit as st
 import requests
+
+def download_models():
+    os.makedirs('artifacts', exist_ok=True)
+    if not os.path.exists('artifacts/movie_list.pkl'):
+        gdown.download('https://drive.google.com/uc?id=1i2NiwmRNLmJr01--Q1D2S6YM3T_cY7jZ', 'artifacts/movie_list.pkl', quiet=False)
+    if not os.path.exists('artifacts/similarity.pkl'):
+        gdown.download('https://drive.google.com/uc?id=1ETtxHSkY7P9e09SV328MrTUNIholMdZF', 'artifacts/similarity.pkl', quiet=False)
 
 def fetch_poster(movie_id):
     try:
@@ -28,24 +37,23 @@ def recommend(movie):
         movie_id = movies.iloc[i[0]].movie_id
         recommended_movie_posters.append(fetch_poster(movie_id))
         recommended_movie_names.append(movies.iloc[i[0]].title)
-
     return recommended_movie_names, recommended_movie_posters
 
 st.write("InnovateX 💢")
 st.header('🎬 Movie Recommender System Using Machine Learning')
 
+with st.spinner('Loading model files...'):
+    download_models()
+
 try:
-    movies = pickle.load(open('artifacts/movie_list.pkl','rb'))
-    similarity = pickle.load(open('artifacts/similarity.pkl','rb'))
-except FileNotFoundError:
-    st.error("Model files not found. Please run the Jupyter notebook first to generate the required files.")
+    movies = pickle.load(open('artifacts/movie_list.pkl', 'rb'))
+    similarity = pickle.load(open('artifacts/similarity.pkl', 'rb'))
+except Exception as e:
+    st.error(f"Failed to load model files: {e}")
     st.stop()
 
 movie_list = movies['title'].values
-selected_movie = st.selectbox(
-    "Type or select a movie from the dropdown 👇",
-    movie_list
-)
+selected_movie = st.selectbox("Type or select a movie from the dropdown 👇", movie_list)
 
 if st.button('Show Recommendation'):
     with st.spinner('Getting recommendations...'):
@@ -57,7 +65,6 @@ if st.button('Show Recommendation'):
     with col2:
         st.text(recommended_movie_names[1])
         st.image(recommended_movie_posters[1])
-
     with col3:
         st.text(recommended_movie_names[2])
         st.image(recommended_movie_posters[2])
@@ -67,4 +74,3 @@ if st.button('Show Recommendation'):
     with col5:
         st.text(recommended_movie_names[4])
         st.image(recommended_movie_posters[4])
-
