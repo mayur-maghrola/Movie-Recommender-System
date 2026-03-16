@@ -1,0 +1,7 @@
+### dependency
+streamlit
+requests
+urllib3
+
+### local packages -
+-e . 
