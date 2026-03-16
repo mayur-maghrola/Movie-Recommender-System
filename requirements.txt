@@ -4,4 +4,3 @@ urllib3
 scikit-learn
 pandas
 numpy
-pickle5
